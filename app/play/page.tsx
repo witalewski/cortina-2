@@ -22,6 +22,7 @@ export default function PlayPage() {
   } = useAudioEngine();
 
   const [activeNotes, setActiveNotes] = useState<Set<number>>(() => new Set());
+  const [lastPressedNote, setLastPressedNote] = useState<number | null>(null);
 
   const addActiveNote = useCallback((note: number) => {
     setActiveNotes((prev) => {
@@ -81,6 +82,7 @@ export default function PlayPage() {
 
   const handleKeyDown = useCallback(
     (note: number) => {
+      setLastPressedNote(note);
       addActiveNote(note);
 
       if (!audioReady) return;
@@ -93,17 +95,48 @@ export default function PlayPage() {
 
   const handleKeyUp = useCallback(
     (note: number) => {
+      if (lastPressedNote === note) {
+        setLastPressedNote(null);
+      }
       removeActiveNote(note);
 
       if (!audioReady) return;
       const noteName = midiToNoteName(note);
       noteOff(noteName);
     },
-    [audioReady, noteOff, removeActiveNote],
+    [audioReady, lastPressedNote, noteOff, removeActiveNote],
+  );
+
+  const handleKeyEnter = useCallback(
+    (note: number) => {
+      if (lastPressedNote === null || lastPressedNote === note) return;
+
+      const prevNote = lastPressedNote;
+      setLastPressedNote(note);
+
+      removeActiveNote(prevNote);
+      addActiveNote(note);
+
+      if (!audioReady) return;
+      const prevNoteName = midiToNoteName(prevNote);
+      const newNoteName = midiToNoteName(note);
+      const gain = velocityToGain(VIRTUAL_VELOCITY);
+
+      noteOff(prevNoteName);
+      noteOn(newNoteName, gain);
+    },
+    [
+      addActiveNote,
+      audioReady,
+      lastPressedNote,
+      noteOff,
+      noteOn,
+      removeActiveNote,
+    ],
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+    <div className="min-h-screen bg-linear-to-b from-background via-background to-muted/30">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-12">
         <header className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -149,6 +182,7 @@ export default function PlayPage() {
               disabled={!audioReady}
               onKeyDown={handleKeyDown}
               onKeyUp={handleKeyUp}
+              onKeyEnter={handleKeyEnter}
             />
           </div>
         </div>

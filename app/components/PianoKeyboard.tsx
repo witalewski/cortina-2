@@ -16,6 +16,7 @@ interface PianoKeyboardProps {
   className?: string;
   onKeyDown?: (note: number) => void;
   onKeyUp?: (note: number) => void;
+  onKeyEnter?: (note: number) => void;
 }
 
 interface PianoKeyInfo {
@@ -36,6 +37,7 @@ export function PianoKeyboard({
   className,
   onKeyDown,
   onKeyUp,
+  onKeyEnter,
 }: PianoKeyboardProps) {
   const { whiteKeys, blackKeys, whiteKeyCount, blackKeyWidth } = useMemo(() => {
     const keys: PianoKeyInfo[] = [];
@@ -88,11 +90,18 @@ export function PianoKeyboard({
     onKeyUp?.(note);
   };
 
+  const handlePointerEnter = (note: number, event: React.PointerEvent) => {
+    if (disabled) return;
+    if (event.buttons !== 1) return;
+    onKeyEnter?.(note);
+  };
+
   return (
     <div
       className={cn(
         "relative w-full select-none",
-        disabled && "opacity-60",
+        disabled && "grayscale brightness-95",
+        disabled && "pointer-events-none",
         className,
       )}
       role="group"
@@ -105,10 +114,10 @@ export function PianoKeyboard({
           const isActive = activeSet.has(key.midi);
           const isHighlighted = highlightedSet.has(key.midi);
           const keyStateClass = isActive
-            ? "bg-primary/15 text-foreground border-primary/60"
+            ? "bg-stone-200 text-black border-stone-300"
             : isHighlighted
-              ? "bg-amber-200/70 text-amber-900 border-amber-400/70"
-              : "bg-card text-muted-foreground";
+              ? "bg-amber-100 text-amber-900"
+              : "bg-white text-black";
 
           return (
             <button
@@ -118,7 +127,7 @@ export function PianoKeyboard({
                 "relative flex h-40 flex-1 items-end justify-center border border-border text-[11px] font-semibold uppercase shadow-sm transition-colors sm:h-44 md:h-48",
                 "first:rounded-l-md last:rounded-r-md",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                "disabled:cursor-not-allowed disabled:opacity-70",
+                "disabled:cursor-not-allowed disabled:brightness-95",
                 keyStateClass,
               )}
               aria-label={midiToNoteName(key.midi)}
@@ -130,6 +139,7 @@ export function PianoKeyboard({
                 event.preventDefault();
                 handlePointerDown(key.midi);
               }}
+              onPointerEnter={(event) => handlePointerEnter(key.midi, event)}
               onPointerUp={() => handlePointerUp(key.midi)}
               onPointerLeave={() => handlePointerUp(key.midi)}
               onPointerCancel={() => handlePointerUp(key.midi)}
@@ -149,10 +159,10 @@ export function PianoKeyboard({
           const isActive = activeSet.has(key.midi);
           const isHighlighted = highlightedSet.has(key.midi);
           const keyStateClass = isActive
-            ? "bg-stone-500 text-stone-950"
+            ? "bg-stone-500 text-white"
             : isHighlighted
-              ? "bg-stone-600 text-stone-100"
-              : "bg-foreground text-background";
+              ? "bg-amber-900 text-amber-400"
+              : "bg-black text-white";
           const leftPosition = (key.positionIndex / whiteKeyCount) * 100;
 
           return (
@@ -162,9 +172,9 @@ export function PianoKeyboard({
               className={cn(
                 "absolute top-0 z-10 flex h-24 items-end justify-center rounded-b-md border border-border text-[10px] font-semibold shadow-md transition-colors sm:h-28 md:h-32",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                "disabled:cursor-not-allowed disabled:opacity-70",
-                isActive && "ring-2 ring-primary/70",
-                !isActive && isHighlighted && "ring-2 ring-amber-300/90",
+                "disabled:cursor-not-allowed disabled:brightness-95",
+                isActive && "ring-2 ring-stone-300/80",
+                !isActive && isHighlighted && "ring-2 ring-amber-200/70",
                 keyStateClass,
               )}
               style={{
@@ -181,6 +191,7 @@ export function PianoKeyboard({
                 event.preventDefault();
                 handlePointerDown(key.midi);
               }}
+              onPointerEnter={(event) => handlePointerEnter(key.midi, event)}
               onPointerUp={() => handlePointerUp(key.midi)}
               onPointerLeave={() => handlePointerUp(key.midi)}
               onPointerCancel={() => handlePointerUp(key.midi)}
