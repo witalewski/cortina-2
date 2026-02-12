@@ -10,7 +10,6 @@ import { Button } from "@/app/components/ui/button";
 
 const START_NOTE = 48; // C3
 const END_NOTE = 72; // C5
-const VIRTUAL_VELOCITY = Math.round(127 * 0.9);
 
 export default function PlayPage() {
   const {
@@ -87,8 +86,7 @@ export default function PlayPage() {
 
       if (!audioReady) return;
       const noteName = midiToNoteName(note);
-      const gain = velocityToGain(VIRTUAL_VELOCITY);
-      noteOn(noteName, gain);
+      noteOn(noteName);
     },
     [addActiveNote, audioReady, noteOn],
   );
@@ -120,10 +118,9 @@ export default function PlayPage() {
       if (!audioReady) return;
       const prevNoteName = midiToNoteName(prevNote);
       const newNoteName = midiToNoteName(note);
-      const gain = velocityToGain(VIRTUAL_VELOCITY);
 
       noteOff(prevNoteName);
-      noteOn(newNoteName, gain);
+      noteOn(newNoteName);
     },
     [
       addActiveNote,
