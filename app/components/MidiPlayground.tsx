@@ -15,7 +15,7 @@ export function MidiPlayground() {
   } = useAudioEngine();
 
   // Wire MIDI events to audio engine
-  const handleNoteOn = useCallback(
+  const onNoteOn = useCallback(
     (note: number, velocity: number) => {
       if (audioReady) {
         const noteName = midiToNoteName(note);
@@ -26,7 +26,7 @@ export function MidiPlayground() {
     [audioReady, noteOn],
   );
 
-  const handleNoteOff = useCallback(
+  const onNoteOff = useCallback(
     (note: number) => {
       if (audioReady) {
         const noteName = midiToNoteName(note);
@@ -37,11 +37,11 @@ export function MidiPlayground() {
   );
 
   const { status, devices, lastNote, error } = useMidi({
-    onNoteOn: handleNoteOn,
-    onNoteOff: handleNoteOff,
+    onNoteOn,
+    onNoteOff,
   });
 
-  const handleEnableAudio = async () => {
+  const onEnableAudio = async () => {
     await initAudio();
   };
 
@@ -67,7 +67,7 @@ export function MidiPlayground() {
               </p>
             </div>
             <button
-              onClick={handleEnableAudio}
+              onClick={onEnableAudio}
               disabled={audioLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
             >
