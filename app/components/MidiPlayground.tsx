@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import Link from "next/link";
 import { useMidi } from "@/hooks/useMidi";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
 import { midiToNoteName, velocityToGain } from "@/lib/music/midi";
@@ -14,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { Button } from "@/app/components/ui/button";
+import { Button, buttonVariants } from "@/app/components/ui/button";
 import { Separator } from "@/app/components/ui/separator";
 
 export function MidiPlayground() {
@@ -81,6 +82,14 @@ export function MidiPlayground() {
               Connect a keyboard, unlock the audio engine, and hear full piano
               samples with every note you play.
             </p>
+            <div className="pt-2">
+              <Link
+                href="/play"
+                className={buttonVariants({ variant: "secondary" })}
+              >
+                Open Play Mode
+              </Link>
+            </div>
           </div>
         </header>
 

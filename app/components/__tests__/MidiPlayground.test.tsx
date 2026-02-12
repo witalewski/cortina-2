@@ -51,6 +51,9 @@ describe("MidiPlayground", () => {
       expect(
         screen.getByText("Studio for Real-Time MIDI Practice"),
       ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /Open Play Mode/i }),
+      ).toBeInTheDocument();
     });
 
     it("shows Enable Audio card", () => {
