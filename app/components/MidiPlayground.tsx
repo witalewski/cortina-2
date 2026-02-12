@@ -274,9 +274,9 @@ export function MidiPlayground() {
                   <div>Scales: keep tempo steady and even.</div>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="secondary" className="w-full">
-                    Launch Training (coming soon)
-                  </Button>
+                  <Link href="/lessons" className={buttonVariants({ variant: "default", className: "w-full" })}>
+                    Start Lessons
+                  </Link>
                 </CardFooter>
               </Card>
             </div>
