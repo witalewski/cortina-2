@@ -19,7 +19,8 @@ lib/music/   → Pure functions only. No side effects, no imports from other pro
 lib/midi/    → Web MIDI API wrapper. No audio, no React.
 lib/audio/   → Tone.js wrapper. No MIDI, no React.
 hooks/       → Thin React state bridges. Delegate all logic to lib/.
-app/components/ → UI composition from hooks. No direct API access.
+app/components/ → UI composition from hooks + shadcn components. No direct API access.
+app/components/ui/ → shadcn/ui primitives only. No business logic.
 ```
 
 ## Testing
@@ -38,6 +39,7 @@ app/components/ → UI composition from hooks. No direct API access.
 - Trailing commas in function parameters (Prettier enforces this)
 - `@/*` path aliases for imports (maps to project root)
 - `"use client"` directive required on hooks and components that use browser APIs or React state
+- **Prefer shadcn/ui components** (Button, Card, Alert, Badge, etc.) over custom inline elements or hand-written components
 
 ## Common Pitfalls
 
@@ -50,5 +52,23 @@ app/components/ → UI composition from hooks. No direct API access.
 
 1. Start with the pure logic in `lib/` and its tests
 2. Add a React hook in `hooks/` if React state management is needed
-3. Wire into UI in `app/components/`
+3. Wire into UI in `app/components/` using shadcn primitives
 4. Verify: `npm test` (all pass) and `npm run build` (clean)
+
+## shadcn/ui Components
+
+We use **[shadcn/ui](https://ui.shadcn.com/)** for UI components. Components live in `app/components/ui/` and are built on Radix UI primitives with Tailwind styling.
+
+**Guidelines:**
+
+- Use shadcn components (Button, Card, Alert, Badge, Separator, etc.) instead of custom inline elements
+- Add new shadcn components with `npx shadcn@latest add <component>` or copy from docs
+- Every UI component must have a smoke test in `app/components/ui/__tests__/`
+- Use `cn()` from `lib/utils.ts` for conditional class merging
+- shadcn components are presentational — keep all business logic in hooks or lib/
+
+**Config:**
+
+- `components.json` defines paths and aliases
+- CSS variables in `app/globals.css` define the `stone` theme (light + dark via `prefers-color-scheme`)
+- `tailwind.config.ts` maps CSS vars to Tailwind utilities

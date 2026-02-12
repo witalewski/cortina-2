@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MidiPlayground } from "../MidiPlayground";
 import { useMidi } from "@/hooks/useMidi";
 import { useAudioEngine } from "@/hooks/useAudioEngine";
@@ -43,21 +43,22 @@ describe("MidiPlayground", () => {
   });
 
   describe("Initial State - Audio Not Ready", () => {
-    it("renders welcome message when audio is not ready", () => {
+    it("renders header with status badges", () => {
       render(<MidiPlayground />);
 
       expect(screen.getByText("Cortina")).toBeInTheDocument();
+      expect(screen.getByText("Audio locked")).toBeInTheDocument();
       expect(
-        screen.getByText("Musical Training with MIDI"),
+        screen.getByText("Studio for Real-Time MIDI Practice"),
       ).toBeInTheDocument();
-      expect(screen.getByText(/Connect a MIDI keyboard/)).toBeInTheDocument();
     });
 
-    it("shows Enable Audio button", () => {
+    it("shows Enable Audio card", () => {
       render(<MidiPlayground />);
 
+      expect(screen.getByText("Enable the Audio Engine")).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /Enable Audio/i }),
+        screen.getByText(/Audio playback requires a user gesture/),
       ).toBeInTheDocument();
     });
 
@@ -111,9 +112,9 @@ describe("MidiPlayground", () => {
 
       render(<MidiPlayground />);
 
-      expect(screen.getByText(/MIDI Not Supported/)).toBeInTheDocument();
+      expect(screen.getByText(/MIDI not supported/)).toBeInTheDocument();
       expect(
-        screen.getByText(/Try using Chrome, Edge, or Opera/),
+        screen.getByText(/does not expose the Web MIDI API/),
       ).toBeInTheDocument();
     });
 
@@ -127,11 +128,11 @@ describe("MidiPlayground", () => {
 
       render(<MidiPlayground />);
 
-      expect(screen.getByText(/MIDI Permission Denied/)).toBeInTheDocument();
+      expect(screen.getByText(/MIDI permission denied/)).toBeInTheDocument();
       expect(screen.getByText(/User denied permission/)).toBeInTheDocument();
     });
 
-    it("shows loading message when requesting MIDI access", () => {
+    it("shows waiting message when requesting MIDI access", () => {
       mockUseMidi.mockReturnValue({
         status: "prompt",
         devices: [],
@@ -141,7 +142,9 @@ describe("MidiPlayground", () => {
 
       render(<MidiPlayground />);
 
-      expect(screen.getByText(/Requesting MIDI access/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Waiting for MIDI permission/),
+      ).toBeInTheDocument();
     });
 
     it("shows no devices message when MIDI is granted but no devices connected", () => {
@@ -154,7 +157,7 @@ describe("MidiPlayground", () => {
 
       render(<MidiPlayground />);
 
-      expect(screen.getByText(/No MIDI Devices Connected/)).toBeInTheDocument();
+      expect(screen.getByText(/No MIDI devices detected/)).toBeInTheDocument();
     });
 
     it("shows connected device information", () => {
@@ -174,7 +177,7 @@ describe("MidiPlayground", () => {
 
       render(<MidiPlayground />);
 
-      expect(screen.getByText(/MIDI Connected/)).toBeInTheDocument();
+      expect(screen.getByText("Connected")).toBeInTheDocument();
       expect(screen.getByText(/Test Keyboard/)).toBeInTheDocument();
       expect(screen.getByText(/TestCo/)).toBeInTheDocument();
     });
@@ -197,7 +200,7 @@ describe("MidiPlayground", () => {
       render(<MidiPlayground />);
 
       expect(screen.getByText("Note60")).toBeInTheDocument();
-      expect(screen.getByText(/velocity: 100/)).toBeInTheDocument();
+      expect(screen.getByText(/Velocity 100/)).toBeInTheDocument();
     });
   });
 
