@@ -1,20 +1,22 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MidiPlayground } from "../MidiPlayground";
 import { useMidi } from "@/hooks/useMidi";
-import { useAudioEngine } from "@/hooks/useAudioEngine";
+import { useAudioEngineContext } from "@/app/providers/AudioEngineProvider";
+import { AudioEngineProvider } from "@/app/providers/AudioEngineProvider";
 
 // Mock hooks
 jest.mock("@/hooks/useMidi");
-jest.mock("@/hooks/useAudioEngine");
+jest.mock("@/app/providers/AudioEngineProvider", () => ({
+  useAudioEngineContext: jest.fn(),
+  AudioEngineProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 jest.mock("@/lib/music/midi", () => ({
   midiToNoteName: jest.fn((midi: number) => `Note${midi}`),
   velocityToGain: jest.fn((vel: number) => vel / 127),
 }));
 
 const mockUseMidi = useMidi as jest.MockedFunction<typeof useMidi>;
-const mockUseAudioEngine = useAudioEngine as jest.MockedFunction<
-  typeof useAudioEngine
->;
+const mockUseAudioEngineContext = useAudioEngineContext as jest.MockedFunction<typeof useAudioEngineContext>;
 
 describe("MidiPlayground", () => {
   const mockInitAudio = jest.fn();
@@ -25,7 +27,7 @@ describe("MidiPlayground", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockUseAudioEngine.mockReturnValue({
+    mockUseAudioEngineContext.mockReturnValue({
       isReady: false,
       isLoading: false,
       initAudio: mockInitAudio,
@@ -42,9 +44,13 @@ describe("MidiPlayground", () => {
     });
   });
 
+  const renderWithProvider = (component: React.ReactElement) => {
+    return render(<AudioEngineProvider>{component}</AudioEngineProvider>);
+  };
+
   describe("Initial State - Audio Not Ready", () => {
     it("renders header with status badges", () => {
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText("Cortina")).toBeInTheDocument();
       expect(screen.getByText("Audio locked")).toBeInTheDocument();
@@ -57,7 +63,7 @@ describe("MidiPlayground", () => {
     });
 
     it("shows Enable Audio card", () => {
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText("Enable the Audio Engine")).toBeInTheDocument();
       expect(
@@ -66,7 +72,7 @@ describe("MidiPlayground", () => {
     });
 
     it("calls initAudio when Enable Audio button is clicked", async () => {
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       const button = screen.getByRole("button", { name: /Enable Audio/i });
       fireEvent.click(button);
@@ -75,7 +81,7 @@ describe("MidiPlayground", () => {
     });
 
     it("shows loading state while samples are loading", () => {
-      mockUseAudioEngine.mockReturnValue({
+      mockUseAudioEngineContext.mockReturnValue({
         isReady: false,
         isLoading: true,
         initAudio: mockInitAudio,
@@ -84,7 +90,7 @@ describe("MidiPlayground", () => {
         allNotesOff: mockAllNotesOff,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       const button = screen.getByRole("button", {
         name: /Loading piano samples/i,
@@ -95,7 +101,7 @@ describe("MidiPlayground", () => {
 
   describe("Audio Ready States", () => {
     beforeEach(() => {
-      mockUseAudioEngine.mockReturnValue({
+      mockUseAudioEngineContext.mockReturnValue({
         isReady: true,
         isLoading: false,
         initAudio: mockInitAudio,
@@ -113,7 +119,7 @@ describe("MidiPlayground", () => {
         error: null,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText(/MIDI not supported/)).toBeInTheDocument();
       expect(
@@ -129,7 +135,7 @@ describe("MidiPlayground", () => {
         error: "User denied permission",
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText(/MIDI permission denied/)).toBeInTheDocument();
       expect(screen.getByText(/User denied permission/)).toBeInTheDocument();
@@ -143,7 +149,7 @@ describe("MidiPlayground", () => {
         error: null,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(
         screen.getByText(/Waiting for MIDI permission/),
@@ -158,7 +164,7 @@ describe("MidiPlayground", () => {
         error: null,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText(/No MIDI devices detected/)).toBeInTheDocument();
     });
@@ -178,7 +184,7 @@ describe("MidiPlayground", () => {
         error: null,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText("Connected")).toBeInTheDocument();
       expect(screen.getByText(/Test Keyboard/)).toBeInTheDocument();
@@ -200,7 +206,7 @@ describe("MidiPlayground", () => {
         error: null,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       expect(screen.getByText("Note60")).toBeInTheDocument();
       expect(screen.getByText(/Velocity 100/)).toBeInTheDocument();
@@ -221,7 +227,7 @@ describe("MidiPlayground", () => {
         };
       });
 
-      mockUseAudioEngine.mockReturnValue({
+      mockUseAudioEngineContext.mockReturnValue({
         isReady: true,
         isLoading: false,
         initAudio: mockInitAudio,
@@ -230,7 +236,7 @@ describe("MidiPlayground", () => {
         allNotesOff: mockAllNotesOff,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       // Simulate note-on callback
       capturedCallbacks.onNoteOn?.(60, 100, 0);
@@ -251,7 +257,7 @@ describe("MidiPlayground", () => {
         };
       });
 
-      mockUseAudioEngine.mockReturnValue({
+      mockUseAudioEngineContext.mockReturnValue({
         isReady: true,
         isLoading: false,
         initAudio: mockInitAudio,
@@ -260,7 +266,7 @@ describe("MidiPlayground", () => {
         allNotesOff: mockAllNotesOff,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       // Simulate note-off callback
       capturedCallbacks.onNoteOff?.(60, 0);
@@ -281,7 +287,7 @@ describe("MidiPlayground", () => {
         };
       });
 
-      mockUseAudioEngine.mockReturnValue({
+      mockUseAudioEngineContext.mockReturnValue({
         isReady: false, // Audio not ready
         isLoading: false,
         initAudio: mockInitAudio,
@@ -290,7 +296,7 @@ describe("MidiPlayground", () => {
         allNotesOff: mockAllNotesOff,
       });
 
-      render(<MidiPlayground />);
+      renderWithProvider(<MidiPlayground />);
 
       // Simulate note-on callback
       capturedCallbacks.onNoteOn?.(60, 100, 0);

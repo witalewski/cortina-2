@@ -12,6 +12,20 @@ Cortina is a musical training web app. Users connect a MIDI keyboard and practic
 4. **Pure logic goes in `lib/`, React bridges in `hooks/`, UI in `app/components/`** — don't mix concerns.
 5. **TypeScript strict mode** — no `any` unless unavoidable (test mocks are an exception).
 
+## Architecture
+
+### Audio Engine Context Pattern
+
+Cortina uses a React Context pattern to ensure a singleton AudioEngine instance that persists across page navigation:
+
+- **`AudioEngineProvider`** (`app/providers/AudioEngineProvider.tsx`) - Wraps the entire app and calls `useAudioEngine()` once
+- **`useAudioEngineContext()`** - Hook for components to access the shared AudioEngine
+- **When to use which:**
+  - Use `useAudioEngine()` **only** in `AudioEngineProvider`
+  - Use `useAudioEngineContext()` everywhere else (components, pages, hooks)
+
+This prevents re-initializing the Tone.js AudioEngine when users navigate between pages, ensuring continuous audio playback and preserving loaded samples.
+
 ## Module Boundaries
 
 ```

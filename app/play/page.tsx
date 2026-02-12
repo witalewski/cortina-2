@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useMidi } from "@/hooks/useMidi";
-import { useAudioEngine } from "@/hooks/useAudioEngine";
+import { useAudioEngineContext } from "@/app/providers/AudioEngineProvider";
 import { midiToNoteName, velocityToGain } from "@/lib/music/midi";
 import { PianoKeyboard } from "@/app/components/PianoKeyboard";
 import { Badge } from "@/app/components/ui/badge";
@@ -18,7 +18,7 @@ export default function PlayPage() {
     initAudio,
     noteOn,
     noteOff,
-  } = useAudioEngine();
+  } = useAudioEngineContext();
 
   const [activeNotes, setActiveNotes] = useState<Set<number>>(() => new Set());
   const [lastPressedNote, setLastPressedNote] = useState<number | null>(null);

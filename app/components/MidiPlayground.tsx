@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import { useMidi } from "@/hooks/useMidi";
-import { useAudioEngine } from "@/hooks/useAudioEngine";
+import { useAudioEngineContext } from "@/app/providers/AudioEngineProvider";
 import { midiToNoteName, velocityToGain } from "@/lib/music/midi";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import { Badge } from "@/app/components/ui/badge";
@@ -25,7 +25,7 @@ export function MidiPlayground() {
     initAudio,
     noteOn,
     noteOff,
-  } = useAudioEngine();
+  } = useAudioEngineContext();
 
   // Wire MIDI events to audio engine
   const onNoteOn = useCallback(
