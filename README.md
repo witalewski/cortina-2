@@ -15,6 +15,8 @@ npm run build      # Production build
 npm run lint       # ESLint
 ```
 
+**Live demo:** https://witalewski.github.io/cortina-2/
+
 **Requirements:** A browser that supports the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API) (Chrome, Edge, Opera). Safari is not supported. Must be served over HTTPS or localhost.
 
 ## Project Goals
@@ -30,18 +32,18 @@ Cortina is a musical training tool with these guiding principles:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  app/components/MidiPlayground.tsx  (UI)         │
-│    ↓ uses hooks + shadcn/ui components           │
+│  app/components/MidiPlayground.tsx  (UI)        │
+│    ↓ uses hooks + shadcn/ui components          │
 ├──────────────────┬──────────────────────────────┤
-│  hooks/useMidi   │  hooks/useAudioEngine         │
-│  (React bridge)  │  (React bridge)               │
+│  hooks/useMidi   │  hooks/useAudioEngine        │
+│  (React bridge)  │  (React bridge)              │
 ├──────────────────┼──────────────────────────────┤
-│  lib/midi/       │  lib/audio/                   │
-│  MidiAccess      │  AudioEngine                  │
-│  (Web MIDI API)  │  (Tone.js Sampler)            │
+│  lib/midi/       │  lib/audio/                  │
+│  MidiAccess      │  AudioEngine                 │
+│  (Web MIDI API)  │  (Tone.js Sampler)           │
 ├──────────────────┴──────────────────────────────┤
-│  lib/music/midi.ts                               │
-│  Pure utility functions (note names, velocity)   │
+│  lib/music/midi.ts                              │
+│  Pure utility functions (note names, velocity)  │
 └─────────────────────────────────────────────────┘
 ```
 
