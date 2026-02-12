@@ -23,6 +23,21 @@ app/components/ → UI composition from hooks + shadcn components. No direct API
 app/components/ui/ → shadcn/ui primitives only. No business logic.
 ```
 
+## Tech Stack
+
+| Technology            | Version | Purpose                                                         |
+| --------------------- | ------- | --------------------------------------------------------------- |
+| Next.js               | 16.1.6  | App Router, React framework                                     |
+| React                 | 19.2.3  | UI library                                                      |
+| TypeScript            | 5.x     | Type safety, strict mode                                        |
+| Tone.js               | 15.1.22 | Audio synthesis and sampling                                    |
+| Tailwind CSS          | 4.x     | Utility-first styling (CSS-based config + `tailwind.config.ts`) |
+| shadcn/ui             | —       | Component library (Button, Card, Alert, Badge, etc.)            |
+| Radix UI              | —       | Unstyled primitives (used by shadcn components)                 |
+| Jest                  | 30.2.0  | Test runner                                                     |
+| React Testing Library | 16.3.2  | Component testing                                               |
+| `next/jest`           | —       | SWC transforms for Jest                                         |
+
 ## Testing
 
 - **Framework:** Jest 30 + React Testing Library
@@ -72,3 +87,22 @@ We use **[shadcn/ui](https://ui.shadcn.com/)** for UI components. Components liv
 - `components.json` defines paths and aliases
 - CSS variables in `app/globals.css` define the `stone` theme (light + dark via `prefers-color-scheme`)
 - `tailwind.config.ts` maps CSS vars to Tailwind utilities
+
+## Key Decisions
+
+### Audio: Tone.js Sampler with Salamander Grand Piano
+
+We started with `Tone.PolySynth` but switched to `Tone.Sampler` with **Salamander Grand Piano** samples for realistic sound. Samples are loaded from `https://tonejs.github.io/audio/salamander/` by default. The `AudioEngine` constructor accepts a `baseUrl` option for self-hosting samples.
+
+~25 sample files cover the full 88-key range (every ~3 semitones); Tone.Sampler pitch-shifts to fill gaps.
+
+### Web MIDI Types: Native TypeScript
+
+We initially created custom type definitions in `types/webmidi.d.ts` but discovered TypeScript's built-in `lib.dom.d.ts` already includes complete Web MIDI API types. The custom file was removed — no `@types/*` package needed.
+
+### MIDI Message Parsing
+
+- Status byte upper nibble = command (0x90 = Note On, 0x80 = Note Off)
+- Status byte lower nibble = channel (0-15)
+- Note On with velocity 0 is treated as Note Off (common MIDI convention)
+- Messages with fewer than 3 bytes are ignored
